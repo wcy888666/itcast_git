@@ -1,0 +1,62 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.UserDao">
+
+    <select id="findByQueryVo" parameterType="queryVo" resultType="user">
+        SELECT uid,username,birthday,sex,address FROM t_user
+        <where>
+            <if test="user != null and user.uid != 0">
+                AND uid > #{user.uid}
+            </if>
+            <if test="user != null and user.username != null and user.username !='' ">
+                AND username LIKE #{user.username}
+            </if>
+        </where>
+    </select>
+
+    <select id="findRange" parameterType="queryVo" resultType="user">
+        SELECT uid,username,birthday,sex,address FROM t_user
+        <where>
+            <if test="user != null and user.username != null and user.username !='' ">
+                AND username LIKE #{user.username}
+            </if>
+            <if test="ids != null">
+                <foreach collection="ids" item="id" open="AND (uid=" separator="OR UID =" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <select id="findAccountList" resultMap="accountListMap">
+          SELECT a.*,u.username,u.address FROM t_account a, t_user u WHERE a.uid = u.uid
+    </select>
+    <resultMap id="accountListMap" type="Account">
+        <id column="aid" property="aid"></id>
+        <result column="money" property="money"></result>
+        <result column="uid" property="uid"></result>
+        <!--association用于关联加载的对象,property为需要加载对象,javaType为需要加载对应的类型-->
+        <association property="user" javaType="user">
+            <result column="username" property="username"></result>
+            <result column="address" property="address"></result>
+        </association>
+    </resultMap>
+
+    <select id="findRoleList" resultMap="roleListMap">
+        SELECT r.*,u.username,u.sex,u.birthday, u.address FROM t_role r,user_role ur,t_user u WHERE r.rid = ur.rid AND ur.uid = u.uid
+    </select>
+
+    <resultMap id="roleListMap" type="role">
+        <id column="rid" property="rid"></id>
+        <result column="rName" property="rName"></result>
+        <result column="rDesc" property="rDesc"></result>
+        <collection property="users" ofType="user">
+            <result property="username" column="username"></result>
+            <result property="sex" column="sex"></result>
+            <result property="birthday" column="birthday"></result>
+            <result property="address" column="address"></result>
+        </collection>
+    </resultMap>
+</mapper>
