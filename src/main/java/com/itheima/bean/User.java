@@ -11,6 +11,7 @@ public class User implements Serializable{
     private Date birthday;// 生日
     private String address;// 地址
 
+    private String face;
 
     public User() {
     }
